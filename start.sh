@@ -1,4 +1,5 @@
 #!/bin/bash
+
 app="docker.flask"
 DOCKER_BUILDKIT=1 docker build -t ${app} .
 docker run -d -p 56733:80 \
