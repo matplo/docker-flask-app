@@ -1,4 +1,1 @@
-Flask
-flask-flatpages
-flask-bootstrap
-
+Flask Flask-FlatPages Flask-Bootstrap Flask-Login
