@@ -18,6 +18,7 @@ app = Flask("docker.flask", template_folder=os.path.join(current_dir, 'templates
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['FLATPAGES_EXTENSION'] = '.md'
 app.config['FLATPAGES_ROOT'] = os.path.join(current_dir, 'pages')
+app.config['USER_DB_CONFIG'] = os.path.join(current_dir, 'user_db_config.yaml')
 flatpages = FlatPages(app)
 print('number of pages:', len([p for p in flatpages]))
 for p in flatpages:
@@ -28,7 +29,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'  # The name of the login route
 
 from user_util import User, UserStorage
-users = UserStorage('users.yaml')
+users = UserStorage(app)
 
 from flask_login import AnonymousUserMixin
 class Anonymous(AnonymousUserMixin):
@@ -40,10 +41,11 @@ login_manager.anonymous_user = Anonymous
 # Routes and views
 @app.route('/')
 @app.route('/index')
+@app.route('/home')
 def index():
     page = flatpages.get_or_404('index')
     # print('current user :: username = ', current_user.username, file=sys.stderr)
-    return render_template('page.html', page=page, user=current_user)
+    return render_template('page.html', page=page)
 
 
 @login_manager.user_loader
@@ -88,6 +90,12 @@ def page(path):
 @login_required
 def protected():
     return "This is a protected page."
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # Note the 404 after render_template
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
